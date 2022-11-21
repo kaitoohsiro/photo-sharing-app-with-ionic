@@ -1,11 +1,25 @@
 import { createRouter, createWebHistory } from '@ionic/vue-router';
-import { RouteRecordRaw } from 'vue-router';
+import { RouteRecordRaw, RouteLocationNormalized, NavigationGuardNext } from 'vue-router';
 import TabsPage from '../views/TabsPage.vue'
+import { auth } from '../main';
+
+
+const guard = (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
+  try {
+    if (auth.currentUser) {
+      next();
+    } else {
+      next("/");
+    }
+  } catch (err) {
+    next("/");
+  }
+}
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: '/tabs/tab1'
+    component: () => import('@/views/Authentication.vue')
   },
   {
     path: '/tabs/',
@@ -13,19 +27,23 @@ const routes: Array<RouteRecordRaw> = [
     children: [
       {
         path: '',
-        redirect: '/tabs/tab1'
+        redirect: '/tabs/tab1',
+        beforeEnter: guard
       },
       {
         path: 'tab1',
-        component: () => import('@/views/Tab1Page.vue')
+        component: () => import('@/views/Tab1Page.vue'),
+        beforeEnter: guard
       },
       {
         path: 'tab2',
-        component: () => import('@/views/Tab2Page.vue')
+        component: () => import('@/views/Tab2Page.vue'),
+        beforeEnter: guard
       },
       {
         path: 'tab3',
-        component: () => import('@/views/Tab3Page.vue')
+        component: () => import('@/views/Tab3Page.vue'),
+        beforeEnter: guard
       }
     ]
   }
